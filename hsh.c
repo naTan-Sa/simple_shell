@@ -19,10 +19,7 @@ int main(int argc, char **argv)
 	while (1)
 	{
 		if (isatty(STDIN_FILENO))
-		{
-			printf("$ ");
-			fflush(stdout);
-		}
+			print_str(STDOUT_FILENO, "$ ");
 
 		read = getline(&line, &size, stdin);
 		if (read == -1)
