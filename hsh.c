@@ -1,44 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/wait.h>
 #include "shell.h"
-
-
-/**
- * run_command - fork, execute a command and wait for the child
- * @line: command to execute
- * @shell_name: name used when printing errors
- *
- * Return: nothing
- */
-void run_command(char *line, char *shell_name)
-{
-	pid_t pid;
-	char *args[2];
-
-	pid = fork();
-
-	if (pid == -1)
-	{
-		perror("fork");
-		return;
-	}
-
-	if (pid == 0)
-	{
-		args[0] = line;
-		args[1] = NULL;
-
-		execve(line, args, environ);
-
-		fprintf(stderr, "%s: 1: %s: not found\n", shell_name, line);
-		exit(127);
-	}
-
-	wait(NULL);
-}
 
 /**
  * main - entry point for the simple shell
@@ -50,6 +10,7 @@ void run_command(char *line, char *shell_name)
 int main(int argc, char **argv)
 {
 	char *line = NULL;
+	char **args;
 	size_t size = 0;
 	ssize_t read;
 
@@ -62,15 +23,26 @@ int main(int argc, char **argv)
 			printf("$ ");
 			fflush(stdout);
 		}
-		read = getline(&line, &size, stdin);
 
+		read = getline(&line, &size, stdin);
 		if (read == -1)
 			break;
+
 		if (line[read - 1] == '\n')
 			line[read - 1] = '\0';
 
-		run_command(line, argv[0]);
+		args = split_line(line);
+		if (args == NULL)
+			continue;
+
+		if (args[0] != NULL)
+			run_command(args, argv[0]);
+
+		free(args);
 	}
+
+	if (isatty(STDIN_FILENO))
+		print_str(STDOUT_FILENO, "\n");
 
 	free(line);
 
