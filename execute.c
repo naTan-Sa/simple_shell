@@ -23,15 +23,16 @@ void print_not_found(char *shell_name, char *cmd)
  *
  * Return: nothing
  */
-void run_command(char *path, char **args, char *shell_name)
+int run_command(char *path, char **args, char *shell_name)
 {
 	pid_t pid;
+	int wstatus;
 
 	pid = fork();
 	if (pid == -1)
 	{
 		perror("fork");
-		return;
+		return (1);
 	}
 
 	if (pid == 0)
@@ -43,5 +44,33 @@ void run_command(char *path, char **args, char *shell_name)
 		exit(127);
 	}
 
-	wait(NULL);
+	wait(&wstatus);
+	if (WIFEXITED(wstatus))
+		return (WEXITSTATUS(wstatus));
+	return (1);
+}
+
+/**
+ * handle_command - finds a command in PATH and runs it
+ * @args: NULL-terminated argument array (args[0] is the command)
+ * @shell_name: name used when printing errors
+ *
+ * Return: 127 if not found, otherwise the command's exit status
+ */
+int handle_command(char **args, char *shell_name)
+{
+	char *full;
+	int status;
+
+	full = find_path(args[0]);
+	if (full == NULL)
+	{
+		print_not_found(shell_name, args[0]);
+		return (127);
+	}
+
+	status = run_command(full, args, shell_name);
+	free(full);
+
+	return (status);
 }
