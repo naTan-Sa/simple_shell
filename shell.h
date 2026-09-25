@@ -7,15 +7,16 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
 
 extern char **environ;
 
 /* execute.c */
 void print_not_found(char *shell_name, char *cmd);
-void run_command(char *path, char **args, char *shell_name);
+int run_command(char *path, char **args, char *shell_name);
+int handle_command(char **args, char *shell_name);
 
 /* parse.c */
-int count_words(char *str);
 char **split_line(char *line);
 
 /* str_utils.c */
@@ -30,5 +31,6 @@ char *_getenv(const char *name);
 char *build_path(const char *dir, const char *cmd);
 int has_slash(const char *str);
 char *find_path(char *cmd);
+int is_executable(const char *path);
 
 #endif
