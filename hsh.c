@@ -13,7 +13,7 @@ int main(int argc, char **argv)
 	char **args;
 	size_t size = 0;
 	ssize_t read;
-	char *full;
+	int status = 0;
 
 	(void)argc;
 
@@ -24,7 +24,11 @@ int main(int argc, char **argv)
 
 		read = getline(&line, &size, stdin);
 		if (read == -1)
+		{
+			if(isatty(STDIN_FILENO))
+				print_str(STDOUT_FILENO, "\n");
 			break;
+		}
 
 		if (line[read - 1] == '\n')
 			line[read - 1] = '\0';
@@ -40,24 +44,12 @@ int main(int argc, char **argv)
 		}
 
 		if (args[0] != NULL)
-		{
-			full = find_path(args[0]);
-			if (full == NULL)
-				print_not_found(argv[0], args[0]);
-			else
-			{
-				run_command(full, args, argv[0]);
-				free(full);
-			}
-		}
+			status = handle_command(args, argv[0]);
 
 		free(args);
 	}
 
-	if (isatty(STDIN_FILENO))
-		print_str(STDOUT_FILENO, "\n");
-
 	free(line);
 
-	return (0);
+	return (status);
 }
