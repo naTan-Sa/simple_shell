@@ -13,6 +13,7 @@ int main(int argc, char **argv)
 	char **args;
 	size_t size = 0;
 	ssize_t read;
+	char *full;
 
 	(void)argc;
 
@@ -33,7 +34,16 @@ int main(int argc, char **argv)
 			continue;
 
 		if (args[0] != NULL)
-			run_command(args, argv[0]);
+		{
+			full = find_path(args[0]);
+			if (full == NULL)
+				print_not_found(argv[0], args[0]);
+			else
+			{
+				run_command(full, args, argv[0]);
+				free(full);
+			}
+		}
 
 		free(args);
 	}
