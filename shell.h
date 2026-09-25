@@ -23,6 +23,7 @@ size_t my_strlen(const char *str);
 char *my_strdup(const char *str);
 void print_str(int fd, const char *str);
 int my_strncmp(const char *s1, const char *s2, size_t n);
+int my_strcmp(const char *s1, const char *s2);
 
 /* path.c */
 char *_getenv(const char *name);

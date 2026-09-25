@@ -33,6 +33,12 @@ int main(int argc, char **argv)
 		if (args == NULL)
 			continue;
 
+		if (args[0] != NULL && my_strcmp(args[0], "exit") == 0)
+		{
+			free(args);
+			break;
+		}
+
 		if (args[0] != NULL)
 		{
 			full = find_path(args[0]);
