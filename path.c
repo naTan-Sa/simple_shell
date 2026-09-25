@@ -76,12 +76,32 @@ int has_slash(const char *str)
 	return (0);
 }
 
+/**
+ * is_executable - checks that a path is a regular file we can run
+ * @path: path to check
+ *
+ * Return: 1 if it is an executable regular file, 0 otherwise
+ */
+int is_executable(const char *path)
+{
+	struct stat st;
+
+	if (stat(path, &st) != 0)
+		return (0);
+	if (!S_ISREG(st.st_mode))
+		return (0);
+	if (access(path, X_OK) != 0)
+		return (0);
+
+	return (1);
+}
+
 
 /**
  * find_path - finds the full path of a command
  * @cmd: the command typed by the user
  *
- * Return: newly allocated full path , or NULL
+ * Return: newly allocated full path (caller must free), or NULL
  */
 char *find_path(char *cmd)
 {
@@ -89,13 +109,12 @@ char *find_path(char *cmd)
 
 	if (has_slash(cmd))
 	{
-		if (access(cmd, X_OK) == 0)
+		if (is_executable(cmd))
 			return (my_strdup(cmd));
 		return (NULL);
 	}
 
 	path = _getenv("PATH");
-
 	if (path == NULL || path[0] == '\0')
 		return (NULL);
 
@@ -104,14 +123,12 @@ char *find_path(char *cmd)
 		return (NULL);
 
 	dir = strtok(copy, ":");
-
 	while (dir != NULL)
 	{
 		full = build_path(dir, cmd);
-
 		if (full == NULL)
 			break;
-		if (access(full, X_OK) == 0)
+		if (is_executable(full))
 		{
 			free(copy);
 			return (full);
@@ -119,9 +136,7 @@ char *find_path(char *cmd)
 		free(full);
 		dir = strtok(NULL, ":");
 	}
+
 	free(copy);
 	return (NULL);
 }
-
-
-
