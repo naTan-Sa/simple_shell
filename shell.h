@@ -33,4 +33,7 @@ int has_slash(const char *str);
 char *find_path(char *cmd);
 int is_executable(const char *path);
 
+/* builtins.c */
+int print_env(void);
+
 #endif
