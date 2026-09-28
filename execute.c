@@ -62,6 +62,9 @@ int handle_command(char **args, char *shell_name)
 	char *full;
 	int status;
 
+	if (my_strcmp(args[0], "env") == 0)
+		return (print_env());
+
 	full = find_path(args[0]);
 	if (full == NULL)
 	{
